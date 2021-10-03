@@ -111,8 +111,7 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
         val answerPhoneCallsPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS)
-        } else {
-        }
+        } else { }
 
         val permissionsNeeded: MutableList<String> = ArrayList()
         if (readContactPermision != PackageManager.PERMISSION_GRANTED) {
@@ -171,11 +170,22 @@ class MainActivity : AppCompatActivity() {
                         i++
                     }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.ANSWER_PHONE_CALLS] == PackageManager.PERMISSION_GRANTED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                        permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED &&
+                        permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED &&
+                        permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED &&
+                        permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED &&
+                        permissions[Manifest.permission.ANSWER_PHONE_CALLS] == PackageManager.PERMISSION_GRANTED
+                    ) {
                         Log.d(TAG, "All permissions granted")
                         observeBlocked()
 
-                    } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED) {
+                    } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O &&
+                        permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED &&
+                        permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED &&
+                        permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED &&
+                        permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED
+                    ) {
                         observeBlocked()
                     } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

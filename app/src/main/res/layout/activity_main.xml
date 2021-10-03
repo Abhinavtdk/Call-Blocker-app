@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="@string/no_blocked_contacts_text"
-        android:textColor="@color/dark_cloud"
+        android:textColor="@color/lt_deepsea"
         android:visibility="invisible" />
 
     <androidx.core.widget.NestedScrollView
@@ -68,7 +68,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/how_to_unblock"
-                android:textColor="@color/dark_cloud"
+                android:textColor="@color/lt_deepsea"
                 android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
