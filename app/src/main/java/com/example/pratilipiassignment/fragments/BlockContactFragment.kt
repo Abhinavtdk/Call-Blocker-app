@@ -26,10 +26,7 @@ import java.lang.Exception
 @AndroidEntryPoint
 class BlockContactFragment : BottomSheetDialogFragment() {
 
-//    private val contactViewModel = ViewModelProvider(this).get(ContactViewModel::class.java)
     private val contactViewModel by activityViewModels<ContactViewModel>()
-    private var _binding: BottomPopBlockBinding? = null
-    //    private var binding = _binding
     private lateinit var binding: BottomPopBlockBinding
 
     override fun onCreateView(
@@ -82,6 +79,7 @@ class BlockContactFragment : BottomSheetDialogFragment() {
 
             fabBlockBottom.setOnClickListener {
                 if (editTextBlockNumber.checkNumber()) {
+                    //TODO- Check if the number is already in contacts
                     contactViewModel.insert(
                         Contact(
                             "Unknown",

@@ -10,39 +10,34 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Binder
 import android.os.Build
-import android.os.IBinder
 import android.telecom.TelecomManager
 import android.telephony.TelephonyManager
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import com.android.internal.telephony.ITelecomService
+import com.android.internal.telephony.ITelephony
 import com.example.pratilipiassignment.MainActivity
 import com.example.pratilipiassignment.R
 import com.example.pratilipiassignment.db.ContactDao
 import com.example.pratilipiassignment.model.Contact
 import com.example.pratilipiassignment.utils.findBlockedContact
-import com.example.pratilipiassignment.utils.sendNotification
-import com.example.pratilipiassignment.utils.sendNotificationForPermissions
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.reflect.Method
 import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
 @AndroidEntryPoint
 class CallReceiver : BroadcastReceiver(), CoroutineScope {
 
-    @Inject
-    lateinit var contactDao: ContactDao
+    companion object{
+        const val CONTACT_ID = "block"
+    }
 
     @Inject
-    lateinit var notificationManagerCompat: NotificationManagerCompat
+    lateinit var contactDao: ContactDao
 
     override fun onReceive(context: Context, intent: Intent) {
 
@@ -50,7 +45,7 @@ class CallReceiver : BroadcastReceiver(), CoroutineScope {
             if (context.checkSelfPermission(Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED ||
                 context.checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED
             ) {
-                notificationManagerCompat.sendNotificationForPermissions(context)
+                //TODO - Ask for permissions not given
                 return
             }
         }
@@ -60,7 +55,7 @@ class CallReceiver : BroadcastReceiver(), CoroutineScope {
             ) == TelephonyManager.EXTRA_STATE_RINGING
         ) {
             if (!intent.hasExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)) {
-                Log.d("CallReceiver", "No incoming number")
+                Log.d("CallReceiver", "No number")
                 return
             }
 
@@ -74,57 +69,37 @@ class CallReceiver : BroadcastReceiver(), CoroutineScope {
                 }
             }
         }
-
     }
+
     @SuppressLint("MissingPermission")
     private fun endCall(context: Context, matchNumber: Contact) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
             try {
                 telecomManager.endCall()
-//                notificationManagerCompat.sendNotification(context, matchNumber)
-                showNotification(context,matchNumber)
-            } catch (e: Exception){
+                showNotification(context, matchNumber)
+            } catch (e: Exception) {
                 Log.d("CallReceiver", "endCall: ${e.toString()}")
             }
-        }else{
-
+        } else {
             try {
-                val telephonyClass = Class.forName("com.android.internal.telephony.ITelephony")
-                val telephonyStubClass = telephonyClass.classes[0]
-                val serviceManagerClass = Class.forName("android.os.ServiceManager")
-                val serviceManagerNativeClass = Class.forName("android.os.ServiceManagerNative")
-                val getService: Method =
-                    serviceManagerClass.getMethod("getService", String::class.java)
-                val tempInterfaceMethod: Method = serviceManagerNativeClass.getMethod(
-                    "asInterface",
-                    IBinder::class.java
-                )
-                val tmpBinder = Binder()
-                tmpBinder.attachInterface(null, "fake")
-                val serviceManagerObject = tempInterfaceMethod.invoke(null, tmpBinder)!!
-                val serviceMethod: Method =
-                    telephonyStubClass.getMethod("asInterface", IBinder::class.java)
-                val telephonyObject = serviceMethod.invoke(
-                    null,
-                    getService.invoke(serviceManagerObject, "phone")
-                )!!
-                val telephonyEndCall = telephonyClass.getMethod("endCall")
-                telephonyEndCall.invoke(telephonyObject)
+                val telephonyManager =
+                    context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+                val clazz = Class.forName(telephonyManager.javaClass.name)
+                val method = clazz.getDeclaredMethod("getITelephony")
+                method.isAccessible = true
+                val telephonyService: ITelephony = method.invoke(telephonyManager) as ITelephony
+                telephonyService.endCall()
 
-//                notificationManagerCompat.sendNotification(context, matchNumber)
-                showNotification(context,matchNumber)
-
-            }catch (e:Exception){
+                showNotification(context, matchNumber)
+            } catch (e: Exception) {
                 Log.d("CallReceiver", "endCall: ${e.toString()}")
             }
-
-
         }
     }
 
     private fun showNotification(context: Context, blockedNumber: Contact) {
-        val contentIntent = PendingIntent.getActivity(
+        val intent = PendingIntent.getActivity(
             context,
             0,
             Intent(context, MainActivity::class.java),
@@ -135,21 +110,21 @@ class CallReceiver : BroadcastReceiver(), CoroutineScope {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationChannel =
-                NotificationChannel("block", "block", NotificationManager.IMPORTANCE_DEFAULT)
+                NotificationChannel(CONTACT_ID, "block", NotificationManager.IMPORTANCE_DEFAULT)
             notificationChannel.enableLights(true)
             notificationManager.createNotificationChannel(notificationChannel)
         }
 
-        val notificationBuilder = NotificationCompat.Builder(context, "block")
+        val notificationBuilder = NotificationCompat.Builder(context, CONTACT_ID)
             .setSmallIcon(R.drawable.ic_block)
             .setContentTitle("Call blocked")
             .setContentText("Call blocked from ${blockedNumber.name} with the number ${blockedNumber.number}")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
-        notificationBuilder.setContentIntent(contentIntent)
+        notificationBuilder.setContentIntent(intent)
         notificationBuilder.setDefaults(Notification.DEFAULT_SOUND)
         notificationBuilder.setAutoCancel(true)
-        notificationManager?.notify(1,notificationBuilder.build())
+        notificationManager?.notify(1, notificationBuilder.build())
     }
 
     override val coroutineContext: CoroutineContext

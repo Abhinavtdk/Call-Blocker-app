@@ -9,19 +9,6 @@ import com.example.pratilipiassignment.R
 import com.example.pratilipiassignment.model.Contact
 import java.net.URLDecoder
 
-fun RecyclerView.divider() {
-    addItemDecoration(
-        DividerItemDecoration(
-            context,
-            DividerItemDecoration.VERTICAL
-        ).apply {
-            ContextCompat.getDrawable(context, R.drawable.divider)?.let {drawable->
-                setDrawable(drawable)
-            }
-        }
-    )
-}
-
 fun List<Contact>.findBlockedContact(incoming: String) = firstOrNull(){contact->
     val incomingNumber = incoming.replace(" ","")
     val blockedContactNumber = contact.number.replace(" ","")
@@ -36,8 +23,5 @@ fun EditText.checkNumber(): Boolean{
     ).matches(text.toString())
 }
 
-fun Uri.mobileNumber() = runCatching {
-    URLDecoder.decode(toString().replace("tel:",""),"UTF-8")
-}.getOrNull()
 
 

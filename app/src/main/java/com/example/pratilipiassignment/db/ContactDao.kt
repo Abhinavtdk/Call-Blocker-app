@@ -1,8 +1,8 @@
 package com.example.pratilipiassignment.db
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.pratilipiassignment.model.Contact
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ContactDao {
@@ -17,6 +17,6 @@ interface ContactDao {
     suspend fun delete(vararg contact: Contact)
 
     @Query("SELECT * FROM blockedContacts")
-    fun getBlockedContactsFlow() : Flow<List<Contact>>
+    fun getBlockedContactsLiveData() : LiveData<List<Contact>>
 
 }
