@@ -15,5 +15,5 @@ Features:
 * Works on devices with API 21 and above.
 * Asks for the required permissions at the start of the app.
 
-Can download from here:  
+Can download from here (Give all the asked permissions):  
 https://drive.google.com/file/d/11A00t4WKLOLk2Q6rYwq4zsEPjlW6MFSM/view?usp=sharing
