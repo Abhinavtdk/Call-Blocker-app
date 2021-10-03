@@ -32,7 +32,7 @@ import kotlin.coroutines.CoroutineContext
 @AndroidEntryPoint
 class CallReceiver : BroadcastReceiver(), CoroutineScope {
 
-    companion object{
+    companion object {
         const val CONTACT_ID = "block"
     }
 
@@ -54,11 +54,24 @@ class CallReceiver : BroadcastReceiver(), CoroutineScope {
                 TelephonyManager.EXTRA_STATE
             ) == TelephonyManager.EXTRA_STATE_RINGING
         ) {
+            /*From https://developer.android.com/reference/android/telephony/TelephonyManager
+            Extra key used with the ACTION_PHONE_STATE_CHANGED broadcast for a String containing the
+            incoming or outgoing phone number.
+            This extra is only populated for receivers of the ACTION_PHONE_STATE_CHANGED broadcast which
+            have been granted the Manifest.permission.READ_CALL_LOG and Manifest.permission.READ_PHONE_STATE permissions.
+            For incoming calls, the phone number is only guaranteed to be populated when the EXTRA_STATE changes from
+            EXTRA_STATE_IDLE to EXTRA_STATE_RINGING. If the incoming caller is from an unknown number,
+            the extra will be populated with an empty string. For outgoing calls, the phone number is only guaranteed
+            to be populated when the EXTRA_STATE changes from EXTRA_STATE_IDLE to EXTRA_STATE_OFFHOOK
+            So you receive the broadcast twice, one with phone number and another without. We only take care of the
+            broadcast with the phone number.
+             */
             if (!intent.hasExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)) {
-                Log.d("CallReceiver", "No number")
+                Log.d("CallReceiver", "No extra")
                 return
             }
 
+            //Getting the incoming number
             val number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
             launch {
                 contactDao.getAllBlockedContacts().let { contacts ->
@@ -73,6 +86,7 @@ class CallReceiver : BroadcastReceiver(), CoroutineScope {
 
     @SuppressLint("MissingPermission")
     private fun endCall(context: Context, matchNumber: Contact) {
+        //In versions P and above, we don't need the aidl interface to end calls.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
             try {
@@ -98,6 +112,7 @@ class CallReceiver : BroadcastReceiver(), CoroutineScope {
         }
     }
 
+    //Shows the notification for the call receiver if a number is blocked and attempted to call
     private fun showNotification(context: Context, blockedNumber: Contact) {
         val intent = PendingIntent.getActivity(
             context,

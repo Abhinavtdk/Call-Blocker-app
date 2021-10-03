@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="No Blocked Contacts"
+        android:text="@string/no_blocked_contacts_text"
         android:textColor="@color/dark_cloud"
         android:visibility="invisible" />
 
@@ -33,12 +33,24 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:focusableInTouchMode="true"
-                android:padding="16dp"
-                android:text="BLOCK CONTACTS"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Overline"
+                android:paddingTop="16dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="@string/app_name"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                 android:textColor="@color/dark_deepsea"
-                android:textSize="16sp"
+                android:textAllCaps="true"
                 android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/captionTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/caption_text"
+                android:textColor="@color/dark_sea"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"/>
 
             <TextView
                 android:id="@+id/blockedNumbersTv"
@@ -46,9 +58,18 @@
                 android:layout_height="wrap_content"
                 android:focusableInTouchMode="true"
                 android:padding="16dp"
-                android:text="Blocked Contacts"
+                android:text="@string/blocked_contacts_text"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
                 android:textColor="@color/lt_deepsea" />
+
+            <TextView
+                android:id="@+id/unlock_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/how_to_unblock"
+                android:textColor="@color/dark_cloud"
+                android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/blockedContactsRv"
@@ -57,7 +78,8 @@
                 android:nestedScrollingEnabled="false"
                 android:paddingHorizontal="16dp"
                 android:paddingTop="16dp"
-                android:paddingBottom="100dp" />
+                android:paddingBottom="80dp"
+                />
 
         </LinearLayout>
 

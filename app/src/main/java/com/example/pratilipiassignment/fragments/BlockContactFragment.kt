@@ -44,6 +44,7 @@ class BlockContactFragment : BottomSheetDialogFragment() {
 
         with(binding) {
 
+            //launcher for choosing contacts from the contacts app on a phone
             val launcher = registerForActivityResult(
                 ActivityResultContracts.StartActivityForResult()
             ) {
@@ -94,6 +95,7 @@ class BlockContactFragment : BottomSheetDialogFragment() {
         }
     }
 
+    //We retrieve the picked contact from the Contacts app and return a Contact object
     private fun contactPicked(result: ActivityResult): Contact? {
         try {
             val uri: Uri = result.data?.data!!

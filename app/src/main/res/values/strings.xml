@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">Pratilipi assignment</string>
+    <string name="app_name">Call Blocker</string>
+    <string name="blocked_contacts_text">Blocked Contacts</string>
+    <string name="caption_text">"Block all the spam"</string>
+    <string name="no_blocked_contacts_text">No Blocked Contacts</string>
+    <string name="choose_from_contacts_text">Choose from contacts</string>
+    <string name="number_to_block_text">Number to block</string>
+    <string name="fab_extended_text">Block</string>
+    <string name="or_text">Or type in the number</string>
+    <string name="how_to_unblock">Click on the unlock icon to unblock</string>
 </resources>

@@ -12,6 +12,8 @@ import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -24,6 +26,7 @@ import com.example.pratilipiassignment.databinding.ActivityMainBinding
 import com.example.pratilipiassignment.fragments.BlockContactFragment
 import com.example.pratilipiassignment.model.Contact
 import com.example.pratilipiassignment.viewmodels.ContactViewModel
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,11 +48,19 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //Changing color of status bar
+        val window = this.window
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        window.statusBarColor = this.resources.getColor(R.color.lt_sea)
+
         with(binding) {
+            //setting up the recycler view to show blocked contacts
             with(blockedContactsRv) {
                 blockedContactsAdapter =
                     BlockedContactsAdapter(object : BlockedContactsAdapter.OnClickListener {
                         override fun OnClickUnBlock(contact: Contact) {
+                            //Clicking on the un lock icon will remove the contact from list of blocked contacts
                             contactViewModel.delete(contact)
                         }
                     })
@@ -69,11 +80,13 @@ class MainActivity : AppCompatActivity() {
         }
 
 //        observeBlocked()
+        //Check if permissions are granted, if not request them. If this function returns true, we get the blocked contacts list
         if (checkAndRequestPermissions()) {
             observeBlocked()
         }
     }
 
+    //Will get the list from from viewModel as live data and observe for any changes
     private fun observeBlocked() {
         contactViewModel.getBlockedContacts().observe(this, Observer { contacts ->
             blockedContactsAdapter.differ.submitList(contacts)
@@ -81,10 +94,12 @@ class MainActivity : AppCompatActivity() {
             with(binding) {
                 nestedScrollView.fullScroll(View.FOCUS_UP)
                 initialTv.isVisible = contacts.isEmpty()
+                unlockTv.visibility = if (contacts.isNotEmpty()) View.VISIBLE else View.GONE
             }
         })
     }
 
+    //Checking if the necessary permissions are granted.
     private fun checkAndRequestPermissions(): Boolean {
         val readContactPermision =
             ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS)
@@ -96,7 +111,8 @@ class MainActivity : AppCompatActivity() {
             ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE)
         val answerPhoneCallsPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             ContextCompat.checkSelfPermission(this, Manifest.permission.ANSWER_PHONE_CALLS)
-        } else{}
+        } else {
+        }
 
         val permissionsNeeded: MutableList<String> = ArrayList()
         if (readContactPermision != PackageManager.PERMISSION_GRANTED) {
@@ -111,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         if (callPhonePermission != PackageManager.PERMISSION_GRANTED) {
             permissionsNeeded.add(Manifest.permission.CALL_PHONE)
         }
+        //For versions >= O, we need this permission as well
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (answerPhoneCallsPermission != PackageManager.PERMISSION_GRANTED) {
                 permissionsNeeded.add(Manifest.permission.ANSWER_PHONE_CALLS)
@@ -139,7 +156,8 @@ class MainActivity : AppCompatActivity() {
                 val permissions: MutableMap<String, Int> = HashMap()
                 permissions[Manifest.permission.READ_CONTACTS] = PackageManager.PERMISSION_GRANTED
                 permissions[Manifest.permission.READ_CALL_LOG] = PackageManager.PERMISSION_GRANTED
-                permissions[Manifest.permission.READ_PHONE_STATE] = PackageManager.PERMISSION_GRANTED
+                permissions[Manifest.permission.READ_PHONE_STATE] =
+                    PackageManager.PERMISSION_GRANTED
                 permissions[Manifest.permission.CALL_PHONE] = PackageManager.PERMISSION_GRANTED
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     permissions[Manifest.permission.ANSWER_PHONE_CALLS] =
@@ -153,11 +171,11 @@ class MainActivity : AppCompatActivity() {
                         i++
                     }
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED  && permissions[Manifest.permission.ANSWER_PHONE_CALLS] == PackageManager.PERMISSION_GRANTED) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.ANSWER_PHONE_CALLS] == PackageManager.PERMISSION_GRANTED) {
                         Log.d(TAG, "All permissions granted")
                         observeBlocked()
 
-                    } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED  && permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED) {
+                    } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && permissions[Manifest.permission.READ_CONTACTS] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_CALL_LOG] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.READ_PHONE_STATE] == PackageManager.PERMISSION_GRANTED && permissions[Manifest.permission.CALL_PHONE] == PackageManager.PERMISSION_GRANTED) {
                         observeBlocked()
                     } else {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
