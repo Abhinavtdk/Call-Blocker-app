@@ -7,7 +7,7 @@
 * If a call is received from a number in the blocked list, the app ends the call and shows a notification.  
 
   
-## Features:
+## Other information:
 * MVVM architecture.
 * Uses Room database to store blocked contacts.
 * Written in Kotlin and uses coroutines for background tasks.
