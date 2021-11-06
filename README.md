@@ -1,4 +1,4 @@
-# Pratilipi-Assignment
+# Call Blocker
 
 ## What the app does?
 * Block calls from selected contacts.
